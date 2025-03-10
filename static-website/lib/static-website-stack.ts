@@ -5,29 +5,26 @@ import * as iam from "aws-cdk-lib/aws-iam";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import { Construct } from "constructs";
 
-const PREFIX = "static-website";
-
 export class StaticWebsiteStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // S3 bucket
-    const s3Bucket = new s3.Bucket(this, "S3Bucket", {
+    // Origin bucket
+    const originBucket = new s3.Bucket(this, "OriginBucket", {
       autoDeleteObjects: true,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-      bucketName: `${PREFIX}-origin`,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
     // CloudFront
-    const origin = new origins.S3Origin(s3Bucket);
+    const origin = new origins.S3Origin(originBucket);
     const cfFunction = new cloudfront.Function(this, "Function", {
-      functionName: `${PREFIX}-url-rewrite-spa`,
+      functionName: "url-rewrite-spa",
       code: cloudfront.FunctionCode.fromFile({
-        filePath: "cloudfront-function/url-rewrite-spa.js",
+        filePath: "src/functions/url-rewrite-spa.js",
       }),
     });
-    const distribution = new cloudfront.Distribution(this, "distribution", {
+    const distribution = new cloudfront.Distribution(this, "Distribution", {
       defaultBehavior: {
         origin: origin,
         functionAssociations: [
@@ -48,10 +45,10 @@ export class StaticWebsiteStack extends cdk.Stack {
     // Ref: https://github.com/aws/aws-cdk/issues/21771
     const cfnOriginAccessControl = new cloudfront.CfnOriginAccessControl(
       this,
-      "cf-origin-access-control",
+      "OriginAccessControl",
       {
         originAccessControlConfig: {
-          name: s3Bucket.bucketRegionalDomainName,
+          name: originBucket.bucketRegionalDomainName,
           originAccessControlOriginType: "s3",
           signingBehavior: "always",
           signingProtocol: "sigv4",
@@ -75,7 +72,7 @@ export class StaticWebsiteStack extends cdk.Stack {
     // By default, the s3 WebsiteURL is set and an error occurs, so set the S3 domain name
     cfnDistribution.addPropertyOverride(
       "DistributionConfig.Origins.0.DomainName",
-      s3Bucket.bucketRegionalDomainName
+      originBucket.bucketRegionalDomainName
     );
 
     // OAC settings
@@ -85,13 +82,13 @@ export class StaticWebsiteStack extends cdk.Stack {
     );
 
     // add S3 bucket policy for CloudFront
-    s3Bucket.addToResourcePolicy(
+    originBucket.addToResourcePolicy(
       new iam.PolicyStatement({
         sid: "AllowCloudFrontServicePrincipalReadOnly",
         effect: iam.Effect.ALLOW,
         principals: [new iam.ServicePrincipal("cloudfront.amazonaws.com")],
         actions: ["s3:GetObject"],
-        resources: [s3Bucket.arnForObjects("*")],
+        resources: [originBucket.arnForObjects("*")],
         conditions: {
           StringEquals: {
             "aws:SourceArn": `arn:aws:cloudfront::${this.account}:distribution/${distribution.distributionId}`,
