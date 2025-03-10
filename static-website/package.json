@@ -1,8 +1,8 @@
 {
-  "name": "cdk-static-website",
+  "name": "static-website",
   "version": "0.1.0",
   "bin": {
-    "cdk-static-website": "bin/cdk-static-website.js"
+    "static-website": "bin/static-website.js"
   },
   "scripts": {
     "build": "tsc",

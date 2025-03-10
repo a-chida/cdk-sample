@@ -1,10 +1,10 @@
 import * as cdk from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
-import * as CdkStaticWebsite from "../lib/cdk-static-website-stack";
+import { StaticWebsiteStack } from "../lib/static-website-stack";
 
-describe("CdkStaticWebsite", () => {
+describe("StaticWebsite", () => {
   const app = new cdk.App();
-  const stack = new CdkStaticWebsite.CdkStaticWebsiteStack(app, "TestStack", {
+  const stack = new StaticWebsiteStack(app, "TestStack", {
     env: { region: "us-east-1" },
   });
   const template = Template.fromStack(stack);

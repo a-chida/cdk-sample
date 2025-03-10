@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`CdkStaticWebsite snapshot test 1`] = `
+exports[`StaticWebsite snapshot test 1`] = `
 {
   "Parameters": {
     "BootstrapVersion": {
@@ -88,17 +88,17 @@ exports[`CdkStaticWebsite snapshot test 1`] = `
 }
 ",
         "FunctionConfig": {
-          "Comment": "cdk-static-website-url-rewrite-spa",
+          "Comment": "static-website-url-rewrite-spa",
           "Runtime": "cloudfront-js-1.0",
         },
-        "Name": "cdk-static-website-url-rewrite-spa",
+        "Name": "static-website-url-rewrite-spa",
       },
       "Type": "AWS::CloudFront::Function",
     },
     "S3Bucket07682993": {
       "DeletionPolicy": "Delete",
       "Properties": {
-        "BucketName": "cdk-static-website-origin",
+        "BucketName": "static-website-origin",
         "PublicAccessBlockConfiguration": {
           "BlockPublicAcls": true,
           "BlockPublicPolicy": true,
